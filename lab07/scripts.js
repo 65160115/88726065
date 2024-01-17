@@ -2,18 +2,20 @@ document.addEventListener("DOMContentLoaded", function () {
     const todoList = document.getElementById("todo-list");
     const todoInput = document.getElementById("todo-input");
     const addButton = document.getElementById("add-button");
-    // อาร์เรย์ส าหรับเก็บรายการ Todo
+    // อาร์เรย์สำหรับเก็บรายการ Todo
 
     let todos = [];
 
     // เพิ่มรายการ Todo
     function addTodo() {
+        // ดึงข้อความจาก input ที่มี id เป็น todoInput
         const todoText = todoInput.value.trim();
         if (todoText !== "") {
             const todoItem = {  
             text: todoText,
             completed: false,
             };
+        // เพิ่ม todo item ลงใน array ที่เก็บ todo items ทั้งหมด
         todos.push(todoItem);
         renderTodoList();
         todoInput.value = "";
@@ -43,6 +45,7 @@ document.addEventListener("DOMContentLoaded", function () {
             if (todoItem.completed) {
                 listItem.classList.add("completed");
             }
+            // เป็นคำสั่งการสร้างปุ่ม
             const deleteButton = document.createElement("button");
             deleteButton.textContent = "ลบ";
             deleteButton.addEventListener("click", () => deleteTodo(i));
@@ -51,6 +54,7 @@ document.addEventListener("DOMContentLoaded", function () {
             completeButton.addEventListener("click", () => toggleComplete(i));
             listItem.appendChild(completeButton);
             listItem.appendChild(deleteButton);
+           // เป็นการสร้างปุ่มลงในรายการ todo
             todoList.appendChild(listItem);
         }
     }
