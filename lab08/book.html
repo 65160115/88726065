@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book DB</title>
+
+    <style>
+        h3 {
+        background-color: rgb(18, 195, 18);
+        color: white;
+        padding: 20px;
+        text-align: center;
+        font-size: 30px;
+        }
+        #search {
+            margin-right: 60px;
+        }
+
+        #result {
+            margin-top: 10px;
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 50%;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #40A2E3;
+        }
+    </style>
+</head>
+
+<body>
+    <h3>Book DB</h3>
+    <hr>
+    ค้นหาหนังสือ : <input type="text" id="search" onkeyup="searchBook()">
+    <button onclick="goToAddEditPage()">เพิ่ม</button><br>
+    <hr>
+    <div id="result"></div>
+    
+
+    <script>
+    // Books structure ที่จะเก็บใน localStorage
+    // var books = [
+    // {
+    // id: 1,
+    // name: "Book A",
+    // price: 100
+    // },
+    // {
+    // id: 2,
+    // name: "Book B",
+    // price: 150
+    // }
+    // ];
+
+    var books = JSON.parse(localStorage.getItem("books")) || [];
+
+    searchBook();
+    
+    function searchBook() {
+        var searchInput = document.getElementById("search").value.toLowerCase();
+        var resultDiv = document.getElementById("result");
+        var html = "<table><tr><th>ชื่อหนังสือ</th><th>ราคา</th><th>ผู้แต่ง</th><th></th></tr>";
+
+        for (var i = 0; i < books.length; i++) {
+            var book = books[i];
+            var bookName = book.name.toLowerCase();
+            var bookPrice = book.price.toString().toLowerCase();
+            var authors = book.authors;
+            var authorString = authors ? authors.join(" ") : "";
+
+            if (
+                bookName.includes(searchInput) ||
+                bookPrice.includes(searchInput) ||
+                (authors && authorString.toLowerCase().includes(searchInput))
+            ) {
+                html += `<tr>` +
+                    `<td>${book.name}</td>` +
+                    `<td>${book.price}</td>` +
+                    `<td>${authorString}</td>` +
+                    `<td><img src='https://t.ly/mtMN' onclick='editBook(${book.id})'><img src='https://t.ly/523J' onclick='deleteBook(${book.id})'></td>` +
+                    `</tr>`;
+
+            }
+        }
+        resultDiv.innerHTML = html;
+    }
+
+    function goToAddEditPage() {
+        // ฟังก์ชันเดินทางไปยังหน้า Add/Edit
+        window.location.href = "addeditbook.html";
+    }
+    
+
+    // delete book ตาม id
+    function deleteBook(id) {
+        for (var i = 0; i < books.length; i++) {
+            // ถ้า id ตรงกัน ให้ลบออกจาก array
+            if (books[i].id == id) {
+                // อะเรย์ที่ตำแหน่ง i ลบออก 1 ตัว
+                books.splice(i, 1);
+            }
+        }
+
+        // save to localStorage
+        localStorage.setItem("books", JSON.stringify(books));
+
+        // แสดงผล
+        searchBook();
+    }
+
+    // edit book
+    function editBook(id) {
+    for (var i = 0; i < books.length; i++) {
+        // ถ้า id ตรงกัน ให้นำค่าจาก books[i] ไปกำหนดให้ input แต่ละตัว
+        if (books[i].id == id) {
+            localStorage.setItem("editBookId", id);
+            window.location.href = "addeditbook.html?id=" + id;
+        }              
+    }
+}
+
+    </script>
+</body>
+
+</html>

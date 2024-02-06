@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book DB - Search</title>
+</head>
+
+<body>
+    <h3>Book DB - Search</h3>
+    ค้นหาหนังสือ : <input type="text" id="search" onkeyup="searchBook()"> <br>
+    <div id="result"></div>
+
+    <script src="book.js"></script>
+    <script>
+        var books = JSON.parse(localStorage.getItem("books")) || [];
+
+        function searchBook() {
+            var searchInput = document.getElementById("search").value.toLowerCase();
+            var resultDiv = document.getElementById("result");
+            var html = "<hr>ผลการค้นหา<br>";
+
+            for (var i = 0; i < books.length; i++) {
+                var book = books[i];
+                // Convert values to lowercase for case-insensitive search
+                var bookName = book.name.toLowerCase();
+                var bookPrice = book.price.toString().toLowerCase();
+                var author1 = book.author1 ? book.author1.toLowerCase() : "";
+                var author2 = book.author2 ? book.author2.toLowerCase() : "";
+                var author3 = book.author3 ? book.author3.toLowerCase() : "";
+
+                // Check if any of the fields contains the search input
+                if (
+                    bookName.includes(searchInput) ||
+                    bookPrice.includes(searchInput) ||
+                    author1.includes(searchInput) ||
+                    author2.includes(searchInput) ||
+                    author3.includes(searchInput)
+                ) {
+                    html += `<img src='https://t.ly/mtMN' onclick='editBook(${book.id})'>` +
+                        `${book.id} : ${book.name} : ${book.price} : ${book.author1} ${book.author2} ${book.author3}` +
+                        `<img src='https://t.ly/523J' onclick='deleteBook(${book.id})'><br>`;
+                }
+            }
+
+            resultDiv.innerHTML = html;
+        }
+    </script>
+</body>
+
+</html>
