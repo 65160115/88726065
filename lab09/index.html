@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="CSS/style.css">
+  <style>
+    .delete-button {
+        background-color: #ff6666;
+        color: #fff;
+        border: 1px solid #ff3333;
+        padding: 10px 15px;
+        border-radius: 8px;
+        border-radius: 18px;
+    }
+    .button1 {
+        background-color: rgb(116, 182, 245);
+        color: white;
+        border: none;
+        padding-top: 10px ;
+        padding-bottom: 10px ;
+        padding-left: 16px ;
+        padding-right: 16px ;  
+        border-radius: 8px;
+        border-radius: 18px;
+        font-weight: bold;
+        font-size: 15px;
+    }
+    .button2 {
+        background-color: rgb(116, 182, 245);
+        color: white;
+        border: none;
+        padding-top: 10px ;
+        padding-bottom: 10px ;
+        padding-left: 16px ;
+        padding-right: 16px ;  
+        border-radius: 8px;
+        border-radius: 18px;
+        font-weight: bold;
+        font-size: 15px;
+    }
+    h1 {
+      text-align: center;
+    }
+  </style>
+</head>
+
+<body>
+<div class="container">
+  <header>
+    <h1>Dog Pictures</h1>
+  </header>
+  <!-- Button to navigate to uploaddog.html -->
+  <a href="uploaddog.html"><button class="button1">Upload Pictures</button></a>
+  
+  <!-- Button to download JSON file -->
+  <button class="button2" onclick="downloadJSON()">Download JSON</button><br/>
+
+  <!-- Input for uploading JSON file -->
+  <input type="file" id="jsonFileInput" style="display: none;" onchange="handleFileUpload(event)">
+
+  <!-- Display uploaded dogs -->
+  <div class="dog-container" id="uploadedDogs"></div>
+</div>
+<!-- Script for displaying uploaded dogs and handling JSON operations -->
+<script>
+    const API_URL = "https://api.thedogapi.com/v1/";
+    const API_KEY = "live_JECgneVedmMHxpmG0SFNM1AGIyvxmEcqgj580qGFOb5aIA0hXXJrOB9jqzyeOyEq"; 
+
+    function displayUploadedDogs() {
+      fetch(`${API_URL}images/?limit=10&page=0&order=DESC`, {
+        method: "GET",
+        headers: {
+          "x-api-key": API_KEY,
+        },
+      })
+        .then(response => response.json())
+        .then(data => {
+          const uploadedDogs = document.getElementById("uploadedDogs");
+          if (data.length === 0) {
+            uploadedDogs.innerHTML = "No uploaded dogs found.";
+          } else {
+            data.forEach(dog => {
+              const dogDiv = document.createElement("div");
+              dogDiv.innerHTML = `
+                <div style="position: relative;">
+                  <img src="${dog.url}" title="${dog.id}"/>
+                  <button class="delete-button" onclick="deleteDog('${dog.id}')">Delete</button><br/>
+                </div>`;
+              uploadedDogs.appendChild(dogDiv);
+            });
+          }
+        })
+        .catch(error => console.error("Error fetching dogs:", error));
+    }
+
+    function deleteDog(dogId) {
+      if (confirm("Are you sure you want to delete this dog?")) {
+        fetch(`${API_URL}images/${dogId}`, {
+          method: "DELETE",
+          headers: {
+            "x-api-key": API_KEY,
+          },
+        })
+          .then(response => {
+            if (response.ok) {
+              // Reload the page after successful deletion
+              location.reload();
+            } else {
+              console.error("Error deleting dog:", response.statusText);
+              // Use the original dog information for fallback
+              const fallbackContainer = document.getElementById("uploadedDogs");
+              fallbackContainer.innerHTML = `
+                <div style="position: relative;">
+                  <img src="${dog.url}" title="${dog.id}" style="width: 22%;" />
+                  <button class="delete-button" onclick="deleteDog(${dog.id})">Delete Dog</button>
+                </div>`;
+            }
+          })
+          .catch(error => console.error("Error deleting dog:", error));
+      }
+    }
+
+    // Function to handle file upload
+    function handleFileUpload(event) {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(event) {
+          const jsonData = JSON.parse(event.target.result);
+          // Here you can do whatever you want with the uploaded JSON data
+          console.log("Uploaded JSON data:", jsonData);
+        };
+        reader.readAsText(file);
+      }
+    }
+
+    // Function to download JSON file
+    function downloadJSON() {
+      fetch(`${API_URL}images/?limit=10&page=0&order=DESC`, {
+        method: "GET",
+        headers: {
+          "x-api-key": API_KEY,
+        },
+      })
+        .then(response => response.json())
+        .then(data => {
+          const jsonContent = JSON.stringify(data);
+          const blob = new Blob([jsonContent], { type: 'application/json' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = 'dogs.json';
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+        })
+        .catch(error => console.error("Error downloading JSON file:", error));
+    }
+
+    // Function to delete the fallback cat
+    function deleteFallbackDog() {
+      // Implement the logic to delete the fallback cat (if needed)
+      console.log("Deleting fallback dog");
+    }
+
+    // Call the function to display uploaded dogs when the page loads
+    displayUploadedDogs();
+</script>
+</body>
+</html>
